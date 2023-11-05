@@ -6,7 +6,7 @@ public class MeshGenerator
     Vector3[] vertices;
     Vector2[] uvs;
 
-    public Mesh CreateMesh(float[,] noiseMap, float heightMultiplier)
+    public Mesh CreateMesh(float[,] noiseMap, float heightMultiplier, AnimationCurve meshHeightCurve, float resolution)
     {
         int width = noiseMap.GetLength(0);
         int height = noiseMap.GetLength(1);
@@ -21,8 +21,8 @@ public class MeshGenerator
         {
             for (int h = 0; h < height; h++)
             {
-                float y = noiseMap[w, h] * heightMultiplier;
-                vertices[i] = new Vector3(topLeftX + w, y, topLeftZ + h);
+                float y = meshHeightCurve.Evaluate(noiseMap[w, h]) * heightMultiplier;
+                vertices[i] = new Vector3((topLeftX + w) / resolution, y, (topLeftZ + h) / resolution);
                 uvs[i] = new Vector2(w / (float)width, h / (float)height);
                 i++;
             }
@@ -56,8 +56,7 @@ public class MeshGenerator
         mesh.vertices = vertices;
         mesh.triangles = triangels;
         mesh.uv = uvs;
-        mesh.RecalculateBounds();
-
+        mesh.RecalculateNormals();
         return mesh;
     }
 }

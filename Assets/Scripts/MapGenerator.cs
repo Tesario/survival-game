@@ -5,10 +5,17 @@ public class MapGenerator : MonoBehaviour
 {
     [SerializeField] private int width = 20;
     [SerializeField] private int height = 20;
+    [Range(1, 10)]
     [SerializeField] private float scale = .3f;
+    [Range(1, 30)]
+    [SerializeField]
+    private int resolution = 1;
+    [SerializeField] private AnimationCurve meshHeightCurve;
     [Range(0, 1)]
     [SerializeField] private float persistance;
+    [Range(0, 10.8f)]
     [SerializeField] private float lacunarity;
+    [Range(0, 75)]
     [SerializeField] private int octaves;
     [SerializeField] private int seed;
     [SerializeField] private Vector2 offset;
@@ -36,18 +43,18 @@ public class MapGenerator : MonoBehaviour
     public void GenerateMap()
     {
         mapDisplay = GetComponent<MapDisplay>();
-        float[,] noiseMap = Noise.GenerateNoiseMap(width, height, scale, octaves, persistance, lacunarity, seed, offset);
+        float[,] noiseMap = Noise.GenerateNoiseMap(width * resolution, height * resolution, scale, resolution, octaves, persistance, lacunarity, seed, offset);
 
         switch (displayMode)
         {
             case DisplayMode.NOISE:
-                mapDisplay.DrawNoiseMap(noiseMap);
+                mapDisplay.DrawNoiseMap(noiseMap, resolution);
                 break;
             case DisplayMode.COLOR:
-                mapDisplay.DrawColorMap(GenerateColorMap(noiseMap));
+                mapDisplay.DrawColorMap(GenerateColorMap(noiseMap), resolution);
                 break;
             case DisplayMode.MESH:
-                mapDisplay.DrawMeshMap(noiseMap, heightMultiplier, GenerateColorMap(noiseMap));
+                mapDisplay.DrawMeshMap(noiseMap, heightMultiplier, meshHeightCurve, GenerateColorMap(noiseMap), resolution);
                 break;
         }
     }
@@ -83,14 +90,6 @@ public class MapGenerator : MonoBehaviour
         if (height < 1)
         {
             height = 1;
-        }
-        if (lacunarity < 1)
-        {
-            lacunarity = 1;
-        }
-        if (octaves < 0)
-        {
-            octaves = 0;
         }
     }
 }

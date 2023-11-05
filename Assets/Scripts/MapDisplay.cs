@@ -4,12 +4,13 @@ public class MapDisplay : MonoBehaviour
 {
     [SerializeField] private Renderer textureRender;
     [SerializeField] private MeshFilter meshFilter;
+    [SerializeField] private MeshCollider meshCollider;
     [SerializeField] private Mesh planeMesh;
 
     private MeshGenerator meshGenerator = new MeshGenerator();
     private TextureGenerator textureGenerator = new TextureGenerator();
 
-    public void DrawNoiseMap(float[,] noiseMap)
+    public void DrawNoiseMap(float[,] noiseMap, float resolution)
     {
         int width = noiseMap.GetLength(0);
         int height = noiseMap.GetLength(1);
@@ -27,12 +28,12 @@ public class MapDisplay : MonoBehaviour
         Texture2D texture = textureGenerator.GenerateTexture(colorArr, width, height);
 
         textureRender.sharedMaterial.mainTexture = texture;
-        textureRender.transform.localScale = new Vector3(width, 1, height);
-
         meshFilter.mesh = planeMesh;
+
+        transform.localScale = new Vector3(width / resolution, 1, height / resolution);
     }
 
-    public void DrawColorMap(Color[,] colorMap)
+    public void DrawColorMap(Color[,] colorMap, float resolution)
     {
         int width = colorMap.GetLength(0);
         int height = colorMap.GetLength(1);
@@ -50,14 +51,16 @@ public class MapDisplay : MonoBehaviour
         Texture2D texture = textureGenerator.GenerateTexture(colorArr, width, height);
 
         textureRender.sharedMaterial.mainTexture = texture;
-        textureRender.transform.localScale = new Vector3(width, 1, height);
-
         meshFilter.mesh = planeMesh;
+
+        transform.localScale = new Vector3(width / resolution, 1, height / resolution);
     }
 
-    public void DrawMeshMap(float[,] noiseMap, float heightMultiplier, Color[,] colorMap)
+    public void DrawMeshMap(float[,] noiseMap, float heightMultiplier, AnimationCurve meshHeightCurve, Color[,] colorMap, float resolution)
     {
-        Mesh mesh = meshGenerator.CreateMesh(noiseMap, heightMultiplier);
+        Mesh mesh = meshGenerator.CreateMesh(noiseMap, heightMultiplier, meshHeightCurve, resolution);
+        meshFilter.sharedMesh = mesh;
+        meshCollider.sharedMesh = mesh;
 
         int width = colorMap.GetLength(0);
         int height = colorMap.GetLength(1);
@@ -73,10 +76,8 @@ public class MapDisplay : MonoBehaviour
         }
 
         Texture2D texture = textureGenerator.GenerateTexture(colorArr, width, height);
-
         textureRender.sharedMaterial.mainTexture = texture;
-        textureRender.transform.localScale = new Vector3(width, 1, height);
 
-        meshFilter.mesh = mesh;
+        transform.localScale = new Vector3(width / resolution, 1, height / resolution);
     }
 }
